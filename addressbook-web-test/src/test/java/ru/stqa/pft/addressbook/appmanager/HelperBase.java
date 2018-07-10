@@ -18,12 +18,13 @@ public class HelperBase {
 
     protected void type(By locator, String text) {
         click(locator);
-<<<<<<< HEAD
-
-=======
-        wd.findElement(locator).clear();
-        wd.findElement(locator).sendKeys(text);
->>>>>>> parent of 25f95c5... 3.7 работа с исключениями
+        if (text != null) {
+            String existingText = wd.findElement(locator).getAttribute("value");
+            if (!text.equals(existingText)) {
+                wd.findElement(locator).clear();
+                wd.findElement(locator).sendKeys(text);
+            }
+        }
     }
 
     public boolean isAlertPresent() {
