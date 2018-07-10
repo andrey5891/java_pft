@@ -22,7 +22,11 @@ public class ContactHelper extends HelperBase {
         type(By.name("company"), contactData.getCompany());
 
         if (create) {
-            new Select(wd.findElement(By.name("new_group"))).selectByVisibleText(contactData.getGroup());
+            try {
+                new Select(wd.findElement(By.name("new_group"))).selectByVisibleText(contactData.getGroup());
+            }catch (NoSuchElementException e) {
+                System.out.println("Обработано исключение, что нет указанной группы в модели");
+            }
         } else {
             Assert.assertFalse(isElementPresent(By.name("new_group")));
         }
@@ -54,5 +58,23 @@ public class ContactHelper extends HelperBase {
 
     public void acceptContactDeletion() {
         wd.switchTo().alert().accept();
+    }
+
+    public boolean thereAreContact() {
+        if (isElementPresent(By.xpath("//tr[2]/td[8]/a/img"))) {
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+    public void createContact(ContactData contact) {
+        initContactCreation();
+        fillContactForm(contact, true);
+        submitContactCreation();
+        returnToHomePage();
+    }
+    public void returnToHomePage() {
+        click(By.linkText("home page"));
     }
 }
