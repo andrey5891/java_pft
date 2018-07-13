@@ -7,5 +7,6 @@ public class MyFirstProgram {
 
         System.out.println(r.area());
         System.out.println(s.area());
+        System.out.println(""+(4+5)+"text2");
     }
 }
