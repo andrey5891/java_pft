@@ -1,0 +1,22 @@
+[
+  {
+    "name": "JSONtest 0",
+    "header": "header 0",
+    "footer": "footer 0"
+  },
+  {
+    "name": "JSONtest 1",
+    "header": "header 1",
+    "footer": "footer 1"
+  },
+  {
+    "name": "JSONtest 2",
+    "header": "header 2",
+    "footer": "footer 2"
+  },
+  {
+    "name": "JSONtest 3",
+    "header": "header 3",
+    "footer": "footer 3"
+  }
+]

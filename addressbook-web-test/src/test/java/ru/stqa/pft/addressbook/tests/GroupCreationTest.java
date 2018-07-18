@@ -1,31 +1,81 @@
 package ru.stqa.pft.addressbook.tests;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.thoughtworks.xstream.XStream;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import ru.stqa.pft.addressbook.model.GroupData;
+import ru.stqa.pft.addressbook.model.Groups;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
+import java.io.*;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class GroupCreationTest extends TestBase {
 
-    @Test
-    public void testGroupCreation() {
-        app.getNavigationHelper().gotoGroupPage();
-        List<GroupData> before = app.getGroupHelper().getGroupList();
-        app.getGroupHelper().createGroup(new GroupData("test1", "test2", "test3"));
-        List<GroupData> after = app.getGroupHelper().getGroupList();
-        Assert.assertEquals (after.size(), before.size() + 1);
+    @DataProvider
+    public Iterator<Object[]> validGroups() throws IOException {
+        //List<Object[]> list = new ArrayList<Object[]>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/groups.xml"))) {
+            String line = reader.readLine();
+            String xml = "";
+            while (line != null) {
+                //String [] split = line.split(";");
+                xml += line;
+                //list.add(new Object[] {new GroupData().withName(split[0]).withHeader(split[1]).withFooter(split[2])});
+                line = reader.readLine();
+            }
+            XStream xStream = new XStream();
+            xStream.processAnnotations(GroupData.class);
+            List<GroupData> groups = (List<GroupData>) xStream.fromXML(xml);
+            //return list.iterator();
+            return groups.stream().map(g -> new Object[]{g}).collect(Collectors.toList()).iterator();
+        }
+    }
 
+    @DataProvider
+    public Iterator<Object[]> validGroupsFromJson() throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/groups.json"))) {
+            String json = "";
+            String line = reader.readLine();
+            while (line != null) {
+                json += line;
+                line = reader.readLine();
+            }
+            Gson gson = new Gson();
+            List<GroupData> groups = gson.fromJson(json, new TypeToken<List<GroupData>>() {
+            }.getType());
+            return groups.stream().map(g -> new Object[]{g}).collect(Collectors.toList()).iterator();
+        }
+    }
+    @Test(dataProvider = "validGroupsFromJson")
+    public void testGroupCreation(GroupData group) {
+            app.goTo().groupPage();
+            Groups before = app.group().all();
+            app.group().create(group);
+            assertThat(app.group().getGroupCount(), equalTo(before.size() + 1));
+            Groups after = app.group().all();
+            group.withId(after.stream().mapToInt(g -> g.getId()).max().getAsInt());
+            assertThat(after, equalTo(before.withAdded(group)));
+    }
 
-        //Comparator<? super GroupData> byId = (o1, o2) -> Integer.compare(o1.getId(),o2.getId()) ;
-        //int maxId = after.stream().max(byId).get().getId();
+    @Test (enabled = false)
+    public void testBadGroupCreation() {
+        app.goTo().groupPage();
 
-        before.add(new GroupData("test1", "test2", "test3"));
-        Comparator<? super GroupData> byId = (o1, o2)->Integer.compare(o1.getId(),o2.getId());
-        before.sort(byId);
-        after.sort(byId);
-        Assert.assertEquals(after, before);
+        Groups before = app.group().all();
+        GroupData group = new GroupData().withName("test1'").withHeader("test2").withFooter("test3");
+        app.group().create(group);
+        assertThat (app.group().getGroupCount(), equalTo(before.size()));
+        Groups after = app.group().all();
+        assertThat(after, equalTo(before));
     }
 }

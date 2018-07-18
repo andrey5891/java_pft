@@ -1,0 +1,22 @@
+<list>
+  <group>
+    <name>Xtest 0</name>
+    <header>header 0</header>
+    <footer>footer 0</footer>
+  </group>
+  <group>
+    <name>Xtest 1</name>
+    <header>header 1</header>
+    <footer>footer 1</footer>
+  </group>
+  <group>
+    <name>Xtest 2</name>
+    <header>header 2</header>
+    <footer>footer 2</footer>
+  </group>
+  <group>
+    <name>Xtest 3</name>
+    <header>header 3</header>
+    <footer>footer 3</footer>
+  </group>
+</list>
